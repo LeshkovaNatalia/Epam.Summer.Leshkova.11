@@ -8,64 +8,80 @@ using System.Threading.Tasks;
 
 namespace ClassLibraryLogicGenericMatrix
 {
-    public sealed class SquareMatrix<T> : Matrix<T>, ISumSquareDiagonal<T>
+    public sealed class SquareMatrix<T> : Matrix<T>
     {
+        #region Fields
+        private T[] _matrix;
+        #endregion
+
+        #region Properties
+        public T[] Matrix
+        {
+            get { return _matrix; }
+        }
+        #endregion
+
         #region Ctors
 
         /// <summary>
-        /// Constructor call base ctor, create natrix with default elements.
+        /// Constructor call base ctor, create matrix with default elements.
         /// </summary>
         /// <param name="n">Matrix dimension.</param>
-        public SquareMatrix(int n) : base(n, n)
+        public SquareMatrix(int n)
         {
-            N = n;
+            Size = n;
+            Capacity = n * n;
+            _matrix = new T[Capacity];
         }
 
         /// <summary>
         /// Constructor call base ctor, fill elements from array.
         /// </summary>
         /// <param name="elements">Elements in matrix.</param>
-        public SquareMatrix(T[,] array) : base(array)
+        public SquareMatrix(T[] array)
         {
-            if (array.GetLength(0) != array.GetLength(1))
-                throw new ArgumentException(nameof(array));
+            Capacity = array.Length;
+            Size = (int)Math.Sqrt(Capacity);
+            _matrix = new T[Capacity];
+            if (array.Length > 0)
+            {
+                for (int i = 0; i < Capacity; i++)
+                        _matrix[i] = array[i];
+            }
+            else
+                throw new ArgumentNullException(nameof(array));
         }
 
         #endregion
 
-        #region Public Methods
+        #region Overrided methods for indexer
 
         /// <summary>
-        /// Method AddSquareDiagonal add square and diagonal matrixs.
+        /// Methods GetValue return element from square matrix.
         /// </summary>
-        /// <param name="squareMatrix">Square matrix.</param>
-        /// <param name="diagonalMatrix">Diagonal matrix.</param>
-        /// <returns>Return matrix summary of two matrix.</returns>
-        public Matrix<T> AddSquareDiagonal(SquareMatrix<T> squareMatrix, DiagonalMatrix<T> diagonalMatrix)
+        /// <param name="i">First index.</param>
+        /// <param name="j">Second index.</param>
+        /// <returns>Return element [i, j] from square matrix.</returns>
+        protected override T GetValue(int i, int j)
         {
-            if(squareMatrix.N != diagonalMatrix.N)
-                throw new ArgumentException(nameof(AddSquareDiagonal));
+            if (i < Size && j < Size)
+                return _matrix[Size * i + j];
+            else
+                throw new ArgumentException(nameof(GetValue));
+        }
 
-            try
-            {
-                Matrix<T> sumMatrix = new Matrix<T>(squareMatrix.Column, squareMatrix.Row);
-
-                ParameterExpression paramA = Expression.Parameter(typeof(T), "elem1"),
-                            paramB = Expression.Parameter(typeof(T), "elem2");
-                BinaryExpression body = Expression.Add(paramA, paramB);
-
-                Func<T, T, T> add = Expression.Lambda<Func<T, T, T>>(body, paramA, paramB).Compile();
-
-                for (int i = 0; i < squareMatrix.Column; i++)
-                    for (int j = 0; j < squareMatrix.Row; j++)
-                        sumMatrix[i, j] = add(squareMatrix[i, j], diagonalMatrix[i, j]);
-
-                return sumMatrix;
-            }
-            catch
-            {
-                throw new ArgumentException(string.Format("The binary operator Add is not defined for the types {0}", typeof(T)));
-            }
+        /// <summary>
+        /// Method SetValue set element in square matrix.
+        /// </summary>
+        /// <param name="i">First index.</param>
+        /// <param name="j">Second index.</param>
+        /// <returns>Set element [i, j] square in matrix.</returns>
+        protected override void SetValue(int i, int j, T value)
+        {
+            if (i < Size && j < Size)
+                _matrix[Size * i + j] = value;
+            else
+                throw new ArgumentException(nameof(SetValue));
         }
 
         #endregion

@@ -2,74 +2,89 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ClassLibraryLogicGenericMatrix
 {
-    public sealed class SymmetricMatrix<T> : Matrix<T>, ISumSymmetricDiagonal<T>
+    public sealed class SymmetricMatrix<T> : Matrix<T>
     {
+        #region Fields
+        private T[][] _matrix;
+        #endregion
+
+        #region Properties
+        public T[][] Matrix
+        {
+            get { return _matrix; }
+        }
+        #endregion
+
         #region Ctors
 
         /// <summary>
-        /// Constructor call base ctor, create natrix with default elements.
+        /// Constructor call base ctor, create matrix with default elements.
         /// </summary>
         /// <param name="n">Matrix dimension.</param>
-        public SymmetricMatrix(int n) : base(n, n)
+        public SymmetricMatrix(int n)
         {
-            N = n;
+            Size = n;
+            _matrix = new T[Size][];
+            for (int i = 0; i < Size; i++)
+            {
+                _matrix[i] = new T[n];
+                n--;
+            }
         }
 
         /// <summary>
         /// Constructor call base ctor, fill elements from array.
         /// </summary>
         /// <param name="elements">Elements in matrix.</param>
-        public SymmetricMatrix(T[,] array) : base(array)
+        public SymmetricMatrix(T[][] array):this(array.GetLength(0))
         {
             if(array.GetLength(0) != array.GetLength(1))
                 throw new ArgumentException(nameof(array));
 
             for (int i = 0; i < array.GetLength(0); i++)
                 for (int j = 0; j < array.GetLength(1); j++)
-                    if (i != j)
-                        GenericMatrix[i, j] = GenericMatrix[j, i];
+                        _matrix[i][j] = array[i][j];
         }
 
         #endregion
 
-        #region Public Method
+        #region Overrided methods for indexer
 
         /// <summary>
-        /// Method AddSymmetricDiagonal add synmmetric and diagonal matrixs.
+        /// Methods GetValue return element from symmetric matrix.
         /// </summary>
-        /// <param name="squareMatrix">Symmetric matrix.</param>
-        /// <param name="diagonalMatrix">Diagonal matrix.</param>
-        /// <returns>Return matrix summary of two matrix.</returns>
-        public Matrix<T> AddSymmetricDiagonal(SymmetricMatrix<T> symmetricMatrix, DiagonalMatrix<T> diagonalMatrix)
+        /// <param name="i">First index.</param>
+        /// <param name="j">Second index.</param>
+        /// <returns>Return element [i, j] from symmetric matrix.</returns>
+        protected override T GetValue(int i, int j)
         {
-            if (symmetricMatrix.N != diagonalMatrix.N)
-                throw new ArgumentException(nameof(AddSymmetricDiagonal));
+            if (i < Size && j < Size)
+                if(i <= j)
+                    return _matrix[i][j];
+                else
+                    return _matrix[j][i];
+            else
+                throw new ArgumentException(nameof(GetValue));
+        }
 
-            try
-            {
-                Matrix<T> sumMatrix = new Matrix<T>(symmetricMatrix.Column, symmetricMatrix.Row);
-
-                ParameterExpression paramA = Expression.Parameter(typeof(T), "elem1"),
-                            paramB = Expression.Parameter(typeof(T), "elem2");
-                BinaryExpression body = Expression.Add(paramA, paramB);
-
-                Func<T, T, T> add = Expression.Lambda<Func<T, T, T>>(body, paramA, paramB).Compile();
-
-                for (int i = 0; i < symmetricMatrix.Column; i++)
-                    for (int j = 0; j < symmetricMatrix.Row; j++)
-                        sumMatrix[i, j] = add(symmetricMatrix[i, j], diagonalMatrix[i, j]);
-
-                return sumMatrix;
-            }
-            catch(Exception ex)
-            {
-                throw new ArgumentException(string.Format("The binary operator Add is not defined for the types {0}. {1}", typeof(T), ex.Message));
-            }
+        /// <summary>
+        /// Method SetValue set element in symmetric matrix.
+        /// </summary>
+        /// <param name="i">First index.</param>
+        /// <param name="j">Second index.</param>
+        /// <returns>Set element [i, j] in matrix.</returns>
+        protected override void SetValue(int i, int j, T value)
+        {
+            if (i < Size && j < Size)
+                    _matrix[i][j] = value;
+            else
+                throw new ArgumentException(nameof(SetValue));
         }
 
         #endregion

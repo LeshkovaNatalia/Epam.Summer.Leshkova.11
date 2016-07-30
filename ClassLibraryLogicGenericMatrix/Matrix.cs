@@ -7,125 +7,81 @@ using System.Threading.Tasks;
 
 namespace ClassLibraryLogicGenericMatrix
 {
-    public class Matrix<T>
+    public abstract class Matrix<T>
     {
+        #region Event
+        public event EventHandler<EventArgs> ChangeElement;
+        #endregion
+
         #region Fields
-        private int _n;
-        private int _m;
+        private int _size;
+        private int _capacity;
         #endregion
 
         #region Properties
 
-        public T[,] GenericMatrix { get; set; }
-
-        public int N
+        public int Size
         {
-            get { return _n; }
+            get { return _size; }
             set
             {
                 if (value > 0)
-                    _n = value;
+                    _size = value;
                 else
-                    throw new ArgumentNullException(nameof(value));
-
+                    throw new ArgumentException(nameof(value));
             }
         }
 
-        public int M
+        public int Capacity
         {
-            get { return _m; }
+            get { return _capacity; }
             set
             {
                 if (value > 0)
-                    _m = value;
+                    _capacity = value;
                 else
-                    throw new ArgumentNullException(nameof(value));
+                    throw new ArgumentException(nameof(value));
             }
-        }
-
-        /// <summary>
-        /// Count of element in Matrix
-        /// </summary>
-        public int Count
-        {
-            get { return N * M; }
-        }
-
-        /// <summary>
-        /// Count of column in Matrix
-        /// </summary>
-        public int Column
-        {
-            get { return N; }
-        }
-
-        /// <summary>
-        /// Count of row in Matrix
-        /// </summary>
-        public int Row
-        {
-            get { return M; }
-        }
-
-        #endregion
-
-        #region Ctors
-
-        public Matrix() {   }
-
-        /// <summary>
-        /// Constructor create matrix of size n x m with default elements.
-        /// </summary>
-        /// <param name="n">Count of columns.</param>
-        /// <param name="m">Count of rows.</param>
-        public Matrix(int n, int m)
-        {
-            GenericMatrix = new T[n, m];
-
-            for (int i = 0; i < n; i++)
-                for (int j = 0; j < m; j++)
-                    GenericMatrix[i, j] = default(T);
-        }
-
-        /// <summary>
-        /// Constructor create matrix of size n x m with elements from array.
-        /// </summary>
-        /// <param name="array">Input elements.</param>
-        public Matrix(T[,] array)
-        {
-            N = array.GetLength(0);
-            M = array.GetLength(1);
-            GenericMatrix = new T[N, M];
-
-            for(int i = 0; i < N; i++)
-                for (int j = 0; j < M; j++)
-                    GenericMatrix[i, j] = array[i, j];
         }
 
         #endregion
 
         #region Indexer
 
-        public T this[int x, int y]
+        /// <summary>
+        /// Definition indexer for matrix.
+        /// </summary>
+        /// <param name="i">First indexer.</param>
+        /// <param name="j">Second indexer.</param>
+        /// <returns></returns>
+        public T this[int i, int j]
         {
-            get { return GenericMatrix[x, y]; }
+            get { return GetValue(i, j); }
             set
             {
-                GenericMatrix[x, y] = value;
+                SetValue(i, j, value);
                 OnChangeElement(new EventArgs());
             }
         }
+
+        /// <summary>
+        /// Methods GetValue return element from generic matrix.
+        /// </summary>
+        protected abstract T GetValue(int i, int j);
+
+        /// <summary>
+        /// Method SetValue set element in generic matrix.
+        /// </summary>
+        protected abstract void SetValue(int i, int j, T value);
 
         #endregion
 
         #region Event OnChangeElement
 
-        public event EventHandler<EventArgs> ChangeElement;
-
         protected virtual void OnChangeElement(EventArgs e)
         {
             EventHandler<EventArgs> temp = ChangeElement;
-            
+
             if (temp != null)
             {
                 temp(this, e);
