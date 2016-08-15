@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,10 +7,41 @@ using System.Threading.Tasks;
 
 namespace ClassLibraryLogicBinarySearchTree
 {
-    public sealed class BinarySearchTree<T>
+    public sealed class BinarySearchTree<T> : IEnumerable<T>
     {
+        private class TreeNode<TValue>
+        {
+            #region Fields
+            private TValue _element;
+            #endregion
+
+            #region Properties
+            public TreeNode<TValue> LeftNode { get; set; }
+            public TreeNode<TValue> RightNode { get; set; }
+
+            public TValue Element
+            {
+                get { return _element; }
+                set
+                {
+                    if (value != null)
+                        _element = value;
+                    else
+                        throw new ArgumentNullException(nameof(value));
+                }
+            }
+            #endregion
+
+            #region Ctors
+            public TreeNode(TValue element)
+            {
+                this.Element = element;
+            }
+            #endregion
+        }
+
         #region Properties
-        public TreeNode<T> RootNode { get; set; }
+        private TreeNode<T> RootNode { get; set; }
 
         public IComparer<T> Comparer { get; set; }
 
@@ -107,7 +139,31 @@ namespace ClassLibraryLogicBinarySearchTree
             return FindMaxElement(this.RootNode.RightNode);
         }
 
+        /// <summary>
+        /// Binary tree traversal Inorder.
+        /// </summary>
+        public IEnumerable<T> Inorder() => Inorder(RootNode);
+
+        /// <summary>
+        /// Binary tree traversal Preorder.
+        /// </summary>
+        public IEnumerable<T> Preorder() => Preorder(RootNode);
+
+        /// <summary>
+        /// Binary tree traversal Postorder.
+        /// </summary>
+        public IEnumerable<T> Postorder() => Postorder(RootNode);
+
+        /// <summary>
+        /// Method GetEnumerator returns an enumerator that iterates through the collection.
+        /// </summary>
+        public IEnumerator<T> GetEnumerator() => Inorder().GetEnumerator();
+
         #endregion
+
+        #endregion
+
+        #region Private Methods
 
         #region Methods Preorder | Inorder | Postorder
 
@@ -116,7 +172,7 @@ namespace ClassLibraryLogicBinarySearchTree
         /// </summary>
         /// <param name="node">TreeNode element.</param>
         /// <returns>Elements from binary tree.</returns>
-        public static IEnumerable<T> Preorder(TreeNode<T> node)
+        private IEnumerable<T> Preorder(TreeNode<T> node)
         {
             if (node != null)
             {
@@ -135,7 +191,7 @@ namespace ClassLibraryLogicBinarySearchTree
         /// </summary>
         /// <param name="node">TreeNode element.</param>
         /// <returns>Elements from binary tree.</returns>
-        public static IEnumerable<T> Inorder(TreeNode<T> node)
+        private IEnumerable<T> Inorder(TreeNode<T> node)
         {
             if (node != null)
             {
@@ -154,7 +210,7 @@ namespace ClassLibraryLogicBinarySearchTree
         /// </summary>
         /// <param name="node">TreeNode element.</param>
         /// <returns>Elements from binary tree.</returns>
-        public static IEnumerable<T> Postorder(TreeNode<T> node)
+        private IEnumerable<T> Postorder(TreeNode<T> node)
         {
             if (node != null)
             {
@@ -168,9 +224,6 @@ namespace ClassLibraryLogicBinarySearchTree
             }
         }
         #endregion
-        #endregion
-        
-        #region Private Methods
 
         /// <summary>
         /// Method ElementAt
@@ -249,6 +302,8 @@ namespace ClassLibraryLogicBinarySearchTree
             else
                 return treeNode.Element;
         }
+                    
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         #endregion
 

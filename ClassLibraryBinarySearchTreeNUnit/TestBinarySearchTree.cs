@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ClassLibraryLogicBinarySearchTree;
 using ClassLibraryLogicBook;
 using ClassLibraryLogicBookNUnit;
@@ -69,7 +65,7 @@ namespace ClassLibraryBinarySearchTreeNUnit
             List<int> expected = new List<int>(new[] {8, 4, 3, 10, 9});
             List<int> actual = new List<int>(treeOfInt.Count);
             
-            foreach (var element in BinarySearchTree<int>.Preorder(treeOfInt.RootNode))
+            foreach (var element in treeOfInt.Preorder())
                 actual.Add(element);
 
             Assert.AreEqual(expected, actual);
@@ -81,7 +77,7 @@ namespace ClassLibraryBinarySearchTreeNUnit
             List<int> expected = new List<int>(new[] { 3, 4, 8, 9, 10 });
             List<int> actual = new List<int>(treeOfInt.Count);
 
-            foreach (var element in BinarySearchTree<int>.Inorder(treeOfInt.RootNode))
+            foreach (var element in treeOfInt)
                 actual.Add(element);
 
             Assert.AreEqual(expected, actual);
@@ -93,7 +89,7 @@ namespace ClassLibraryBinarySearchTreeNUnit
             List<int> expected = new List<int>(new[] { 3, 4, 9, 10, 8 });
             List<int> actual = new List<int>(treeOfInt.Count);
 
-            foreach (var element in BinarySearchTree<int>.Postorder(treeOfInt.RootNode))
+            foreach (var element in treeOfInt.Postorder())
                 actual.Add(element);
 
             Assert.AreEqual(expected, actual);
@@ -124,7 +120,7 @@ namespace ClassLibraryBinarySearchTreeNUnit
         {
             List<string> actual = new List<string>(stringTree.Count);
 
-            foreach (var element in BinarySearchTree<string>.Inorder(stringTree.RootNode))
+            foreach (var element in stringTree)
                 actual.Add(element);
 
             Assert.AreEqual(expected, actual);
@@ -139,7 +135,7 @@ namespace ClassLibraryBinarySearchTreeNUnit
         {
             List<Book> actual = new List<Book>(tree.Count);
 
-            foreach (var element in BinarySearchTree<Book>.Inorder(tree.RootNode))
+            foreach (var element in tree)
                 actual.Add(element);
 
             Assert.AreEqual(expected, actual);
@@ -158,7 +154,7 @@ namespace ClassLibraryBinarySearchTreeNUnit
 
             List<Point2D> actual = new List<Point2D>(tree.Count);
 
-            foreach (var element in BinarySearchTree<Point2D>.Inorder(tree.RootNode))
+            foreach (var element in tree)
                 actual.Add(element);
 
             Assert.AreEqual(expected, actual);
